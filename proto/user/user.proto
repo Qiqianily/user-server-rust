@@ -1,0 +1,26 @@
+syntax = "proto3";
+
+package user;
+
+message UserLoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message UserLoginResponse {
+  string access_token = 1;
+}
+
+message UserRegisterRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message UserRegisterResponse {
+  string result = 1;
+}
+
+service UserService {
+  rpc UserLogin(UserLoginRequest) returns (UserLoginResponse) {}
+  rpc UserRegister(UserRegisterRequest) returns (UserRegisterResponse) {}
+}

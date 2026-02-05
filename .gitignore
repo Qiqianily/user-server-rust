@@ -1,0 +1,9 @@
+/target
+.DS_Store
+.idea/
+.env
+.sqlx
+dev.yml
+logs/
+dev.http
+prod.http
