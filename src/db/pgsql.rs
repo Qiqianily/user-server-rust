@@ -17,7 +17,7 @@ pub async fn init_database_pool_with_config(config: &DbConfig) -> anyhow::Result
     let pool = PgPoolOptions::new()
         .min_connections(config.min_connections())
         .max_connections(config.max_connections())
-        // .connect_timeout(Duration::from_secs(config.connect_timeout_secs()))
+        .acquire_timeout(Duration::from_secs(config.acquire_timeout_secs()))
         .acquire_timeout(Duration::from_secs(config.acquire_timeout_secs()))
         .idle_timeout(Duration::from_secs(config.idle_timeout_secs()))
         .max_lifetime(Duration::from_secs(config.max_lifetime_secs()))

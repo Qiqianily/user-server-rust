@@ -20,7 +20,16 @@ message UserRegisterResponse {
   string result = 1;
 }
 
+message UserExistsRequest {
+  string username = 1;
+}
+
+message UserExistsResponse {
+  bool exists = 1;
+}
+
 service UserService {
   rpc UserLogin(UserLoginRequest) returns (UserLoginResponse) {}
   rpc UserRegister(UserRegisterRequest) returns (UserRegisterResponse) {}
+  rpc UserExists(UserExistsRequest) returns (UserExistsResponse) {}
 }
