@@ -1,0 +1,78 @@
+# version: "3.8"
+
+networks:
+  app-network:
+    driver: bridge
+    external: true
+    name: app-network
+    # ipam:
+    #   config:
+    #     - subnet: 172.20.0.0/16
+services:
+  user_server_grpc:
+    build:
+      context: .
+      dockerfile: Dockerfile.grpc
+      args:
+        VERSION: ${CURRENT_VERSION:-latest}
+    image: ${GRPC_SERVER_IMAGE_NAME}:${CURRENT_VERSION:-latest}
+    container_name: ${GRPC_SERVER_IMAGE_NAME}
+    env_file: .env_prod # 📄 环境变量文件
+    restart: unless-stopped
+    ports:
+      - "${GRPC_PORT:-50000}:50000"
+    environment:
+      - CURRENT_VERSION=${CURRENT_VERSION:-latest}
+      - RUST_LOG=${GRPC_LOG_LEVEL:-info}
+    volumes:
+      - /micro-server/user-server/deploy/config:/app/conf:ro
+      - /micro-server/user-server/deploy/grpc-data:/app/data
+      - /micro-server/user-server/deploy/grpc-log:/app/logs
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD", "grpc_health_probe", "-addr=localhost:50000"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    labels:
+      - "version=${CURRENT_VERSION:-latest}"
+      - "service=grpc"
+
+  user_server_http:
+    build:
+      context: .
+      dockerfile: Dockerfile.http
+      args:
+        VERSION: ${CURRENT_VERSION:-latest}
+    image: ${HTTP_SERVER_IMAGE_NAME}:${CURRENT_VERSION:-latest}
+    container_name: ${HTTP_SERVER_IMAGE_NAME}
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-8899}:8899"
+    environment:
+      - CURRENT_VERSION=${CURRENT_VERSION:-latest}
+      - RUST_LOG=${HTTP_LOG_LEVEL:-info}
+    volumes:
+      - /micro-server/user-server/deploy/config:/app/conf:ro
+      - /micro-server/user-server/deploy/http-data:/app/data
+      - /micro-server/user-server/deploy/http-log:/app/logs
+    networks:
+      - app-network
+    depends_on:
+      - user_server_grpc
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8899/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+    labels:
+      - "version=${CURRENT_VERSION:-latest}"
+      - "service=http"
+
+volumes:
+  grpc-data:
+    driver: local
+  http-data:
+    driver: local
