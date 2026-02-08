@@ -100,7 +100,7 @@ allow = [
     "BSD-2-Clause",
     "BSD-3-Clause",
     "ISC",
-    # "OpenSSL",
+    "OpenSSL",
     "BSL-1.0",
 ]
 # The confidence threshold for detecting a license from license text.
